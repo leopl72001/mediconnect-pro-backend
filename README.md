@@ -1,4 +1,12 @@
-# MediConnect — Gestión de citas médicas
+# MediConnect Pro — Backend (Proyecto de Grado)
+
+> **Versión 2 independiente y en construcción.** Partimos de la versión 1 [MediConnect](https://github.com/leopl72001/mediconnect), ya entregada y conservada sin modificaciones. **Estado actual del código: Java 21 / Spring Boot 3.5.7**, aún no migrado a Java 25 / Spring Boot 4. Este repositorio será el backend de la nueva aplicación Full-Stack.
+
+**Ruta de desarrollo y criterios del proyecto de grado:** [docs/capstone-roadmap.md](docs/capstone-roadmap.md). **Gobernanza de Cursor AI:** [.cursorrules](.cursorrules). El frontend Angular 21+ se creará en un repositorio distinto.
+
+---
+
+## Base heredada de MediConnect v1
 
 **Proyecto universitario nuevo**, independiente del repositorio anterior. Backend REST con Java 21, Spring Boot 3.5.7, Maven, Spring Security, PostgreSQL, MongoDB y Redis.
 
