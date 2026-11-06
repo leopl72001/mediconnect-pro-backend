@@ -1,0 +1,32 @@
+# MediConnect Pro Backend — Cursor AI Rules
+# These rules apply to the Java/Spring repository. The Angular frontend has its own rules.
+
+## Technology and architecture
+- Target: Java 25, Spring Boot 4, PostgreSQL and JWT. The copied code currently runs on Java 21 / Spring Boot 3.5.7; migrate incrementally and keep tests green.
+- Preserve package-by-feature boundaries: auth, patients, admin, appointments, catalog, clinical, prescriptions, config and shared.
+- Keep controllers thin. Put business rules in services; use DTO records, Bean Validation and explicit authorization.
+- Prefer small, reversible changes and descriptive conventional commits. Never rewrite the delivered original repo leopl72001/mediconnect.
+- Backward-compatible database changes: use versioned migrations for production. No silent schema-breaking edits.
+
+## Security and data
+- Do not hardcode or log JWTs, passwords, database URLs with credentials, patient details or clinical notes.
+- Keep .env, .env.*, secrets and local credentials out of Git; .env.example may only contain placeholders.
+- Validate inputs; enforce roles at endpoints and service boundaries; patients may access only their own records.
+- Maintain transaction boundaries and protection against overlapping appointments. Add concurrency tests for critical paths.
+- Do not claim OpenFDA validates treatment, dosage or medical safety; it only helps locate public drug information.
+
+## Tests and quality
+- Write or update tests for every business behavior change. Target >=80% JaCoCo coverage of business logic, and document exclusions.
+- Add Testcontainers integration tests with PostgreSQL and needed dependencies. Keep unit tests fast and isolated.
+- Include lint/static analysis, vulnerability checks and GitHub Actions CI before CD.
+- Never mark a requirement as completed unless implementation, automated verification and (where required) cloud deployment are demonstrated.
+
+## Full-stack interface
+- Frontend resides in leopl72001/mediconnect-pro-frontend (separate repository).
+- Coordinate API changes via documented OpenAPI contracts; support Angular 21+ zoneless Signals-based SPA.
+- Plan real-time updates via WebSocket or SSE; handle reconnections, offline queues and idempotent synchronization.
+- Store uploaded images/attachments in secure private object storage with file type/size checks, authorization and signed access.
+
+## AI governance
+- For each meaningful AI-assisted change, log context, prompt intent, decision, human review and evidence of verification in docs/ai-log.md.
+- Flag uncertainties, trade-offs and compatibility risks; do not invent passing tests or cloud URLs.
