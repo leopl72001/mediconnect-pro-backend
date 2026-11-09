@@ -1,4 +1,4 @@
-name: mediconnect2
+name: mediconnect-pro
 services:
   postgres:
     image: postgres:17-alpine
@@ -6,7 +6,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:?Configura POSTGRES_DB en .env}
       POSTGRES_USER: ${POSTGRES_USER:?Configura POSTGRES_USER en .env}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configura POSTGRES_PASSWORD en .env}
-    ports: ["127.0.0.1:5433:5432"]
+    ports: ["127.0.0.1:5434:5432"]
     volumes: [postgres_data:/var/lib/postgresql/data]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
@@ -18,11 +18,11 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:?Configura MONGO_ROOT_USERNAME en .env}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?Configura MONGO_ROOT_PASSWORD en .env}
-    ports: ["127.0.0.1:27018:27017"]
+    ports: ["127.0.0.1:27019:27017"]
     volumes: [mongo_data:/data/db]
   redis:
     image: redis:7-alpine
-    ports: ["127.0.0.1:6380:6379"]
+    ports: ["127.0.0.1:6381:6379"]
     volumes: [redis_data:/data]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -43,7 +43,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:?Configura JWT_SECRET en .env}
       DEV_ADMIN_EMAIL: ${DEV_ADMIN_EMAIL:?Configura DEV_ADMIN_EMAIL en .env}
       DEV_ADMIN_PASSWORD: ${DEV_ADMIN_PASSWORD:?Configura DEV_ADMIN_PASSWORD en .env}
-    ports: ["127.0.0.1:8081:8081"]
+    ports: ["127.0.0.1:8082:8081"]
     depends_on:
       postgres: {condition: service_healthy}
       mongo: {condition: service_started}
