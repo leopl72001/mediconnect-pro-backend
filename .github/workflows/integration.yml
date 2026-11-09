@@ -1,7 +1,7 @@
 name: MediConnect Docker Integration
 on:
   push:
-    branches: [main]
+    branches: [main, 'migracion/spring-boot-4']
   workflow_dispatch:
 
 jobs:
@@ -27,14 +27,14 @@ jobs:
               echo "La API dejo de ejecutarse."
               exit 1
             fi
-            if curl --connect-timeout 2 --max-time 5 -fsS http://127.0.0.1:8081/actuator/health | grep -q '"status":"UP"'; then
+            if curl --connect-timeout 2 --max-time 5 -fsS http://127.0.0.1:8082/actuator/health | grep -q '"status":"UP"'; then
               ready=1
               break
             fi
             sleep 5
           done
           test "$ready" -eq 1
-          curl --max-time 10 -fsS http://127.0.0.1:8081/api/v1/specialties
+          curl --max-time 10 -fsS http://127.0.0.1:8082/api/v1/specialties
       - name: Mostrar logs si falla
         if: failure()
         run: docker compose logs --no-color --tail=200 app postgres mongo redis
