@@ -81,7 +81,7 @@ class PrivateMediaGridFsCoverageTest {
         when(grid.findOne(any(Query.class))).thenReturn(file);
         assertThrows(NotFoundException.class,
                 () -> service.download("patient@example.test", id.toHexString()));
-        verify(grid, never()).getResource(any());
+        verify(grid, never()).getResource(any(GridFSFile.class));
     }
 
     @Test void rejectsFileExceedingFiveMegabytesBeforeDownload() {
@@ -91,7 +91,7 @@ class PrivateMediaGridFsCoverageTest {
         when(grid.findOne(any(Query.class))).thenReturn(file);
         assertThrows(IllegalArgumentException.class,
                 () -> service.download("PATIENT@example.test", id.toHexString()));
-        verify(grid, never()).getResource(any());
+        verify(grid, never()).getResource(any(GridFSFile.class));
     }
 
     @Test void ownerMayDownloadRealBytesWithTheExpectedMetadata() throws Exception {
