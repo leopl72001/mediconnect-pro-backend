@@ -9,6 +9,7 @@ import java.util.Locale;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.universidad.mediconnect2.shared.NotFoundException;
 
 @Service
+@Profile({"prod", "docker"})
 public class PrivateMediaService {
     public static final long MAX_BYTES = 5L * 1024 * 1024;
     private final GridFsTemplate grid;
