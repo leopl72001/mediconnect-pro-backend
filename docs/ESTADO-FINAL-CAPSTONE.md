@@ -13,10 +13,10 @@
 | Redis para caché | Implementado local | Docker Compose; no instancia cloud creada |
 | SSE para cambios de agenda | Implementado local | Pruebas locales y Cypress |
 | WebP, almacenamiento privado y cola offline IndexedDB | Implementado y probado en local | Imagen ficticia pendiente y posterior sincronización a MongoDB |
-| Pruebas backend | **44/44** | GitHub Actions PR #8: `mvn verify` |
-| Cobertura backend | **51,64 % líneas; 56,69 % ramas** | JaCoCo PR #8; **meta 80 % pendiente** |
-| Pruebas frontend | **49/49** | GitHub Actions PR #13: Vitest |
-| Cobertura frontend | **32,64 % líneas; 30,45 % ramas** | Vitest PR #13; **meta 80 % pendiente** |
+| Pruebas backend | **95/95** | GitHub Actions PR #8: `mvn verify` |
+| Cobertura backend | **82,36 % líneas; 82,17 % ramas** | JaCoCo PR #8; **meta 80 % pendiente** |
+| Pruebas frontend | **140/140** | GitHub Actions PR #13: Vitest |
+| Cobertura frontend | **70,33 % líneas; 69,77 % ramas** | Vitest PR #13; **meta 80 % pendiente** |
 | Cypress E2E | **4/4 flujos** | Registro, citas, notas y privacidad de archivos; PR #13 verde |
 | Docker multi-stage y workflows GitHub Actions | Implementados | Builds e integración automatizada |
 | SonarCloud real | **Pendiente** | Sin proyecto/tokens ni dashboard verificado |
@@ -28,7 +28,7 @@
 
 ## Lo que ya se integró en main
 
-Backend: PR #6 (seguridad/formatos medios), #7 (citas y autenticación), #8 (límites de citas). Frontend: PR #10 (E2E de privacidad), #11 (estado de Angular), #12 (JWT), #13 (sesión), más las plantillas de Render #5 backend y #9 frontend.
+Backend: PR #6 (seguridad/formatos medios), #7 (citas y autenticación), #8 (límites de citas), #10 (perfiles, recetas y notas), #11 (catálogo y administración), #12 (SSE y errores), #13 (autenticación y citas), #14 (GridFS), #15 (puerta mínima del 80 %). Frontend: PR #10 (E2E de privacidad), #11 (estado de Angular), #12 (JWT), #13 (sesión), #15 (perfil), #16 (WebP), #17 (medios offline), #18 (admin/clínico), #19 (acceso), #20 (verificación), #21 (citas reales), #22 (SSE), #23 (cola IndexedDB), más las plantillas de Render #5 backend y #9 frontend.
 
 ## Para ejecutar desde Windows
 
@@ -53,7 +53,7 @@ Visitar `http://localhost:4200`. Si Node nativo o el proxy local fallan en Windo
 
 ## Bloqueos para cierre total
 
-1. **Cobertura académica:** subir al menos a 80 % en JaCoCo y Vitest; los porcentajes no se deben redondear a aprobado. Priorizar `AppointmentService`, `AuthService`, controles de medios y componentes Angular sin cubrir.
+1. **Cobertura académica:** JaCoCo superó 80 % de líneas y ramas y el CI exige ese mínimo. Falta subir Vitest de 70,33 % de líneas y 69,77 % de ramas al 80 %; no redondear ni declararlo aprobado. Priorizar `AppointmentService`, `AuthService`, controles de medios y componentes Angular sin cubrir.
 2. **Render:** hay una base de PostgreSQL 18 gratuita ya existente (`biblioteca-db`, nombre de base `biblioteca_db_w5no`, región Oregon, caducidad indicada **12/12/2026**), pero no hay aplicaciones web ni Key Value/Redis. Se requiere MongoDB Atlas u otro MongoDB accesible, Redis y secretos configurados en Render. `render.yaml` utiliza un plan Free y **no crea otra base**. El despliegue no se puede declarar completado hasta que existan URLs públicas comprobadas.
 3. **SonarCloud:** requiere conectar dos proyectos y configurar los secretos del repositorio; no exponer valores en documentación ni capturas.
 4. **Defensa:** grabar video de funcionamiento con usuarios ficticios y guardar capturas de CI, cobertura, autorización y pruebas offline.
