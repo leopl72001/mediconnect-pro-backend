@@ -1,0 +1,45 @@
+# Render Blueprint - backend. Requiere MongoDB Atlas y Redis externo.
+# Se requieren credenciales y aprobación de costes en Render.
+databases:
+  - name: mediconnect-pro-pg
+    databaseName: mediconnect2
+    user: mediconnect2
+    plan: basic-256mb
+services:
+  - type: web
+    name: mediconnect-pro-api
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SERVER_PORT
+        value: "8081"
+      - key: DB_HOST
+        fromDatabase:
+          name: mediconnect-pro-pg
+          property: host
+      - key: DB_NAME
+        fromDatabase:
+          name: mediconnect-pro-pg
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: mediconnect-pro-pg
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: mediconnect-pro-pg
+          property: password
+      - key: MONGO_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: DEV_ADMIN_EMAIL
+        sync: false
+      - key: DEV_ADMIN_PASSWORD
+        sync: false
