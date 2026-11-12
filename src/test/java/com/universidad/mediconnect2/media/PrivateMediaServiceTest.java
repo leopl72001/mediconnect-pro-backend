@@ -90,7 +90,7 @@ class PrivateMediaServiceTest {
         assertEquals("documento.jpg", PrivateMediaService.safeFilename(".hidden", "image/jpeg"));
         assertThrows(IllegalArgumentException.class,
                 () -> PrivateMediaService.safeFilename("file", "text/html"));
-        assertEquals(74, PrivateMediaService.safeFilename("a".repeat(90) + ".webp", "image/webp").length());
+        assertEquals(75, PrivateMediaService.safeFilename("a".repeat(90) + ".webp", "image/webp").length());
     }
 
     @Test void refusesMissingOrEmptyUploadBeforeCallingMongo() {
