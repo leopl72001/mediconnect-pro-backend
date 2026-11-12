@@ -1,6 +1,6 @@
 # MediConnect Pro — Backend (Proyecto de Grado)
 
-> **Versión 2 independiente, Java 25 / Spring Boot 4.0.9.** Partimos de [MediConnect v1](https://github.com/leopl72001/mediconnect), ya entregado y conservado sin modificaciones. El frontend Angular 21+ está en [mediconnect-pro-frontend](https://github.com/leopl72001/mediconnect-pro-frontend). La fase 6 de integración funcional está validada; en fase 7 se añade SSE para actualizar las agendas automáticamente.
+> **Versión 2 independiente, Java 25 / Spring Boot 4.0.9.** Partimos de [MediConnect v1](https://github.com/leopl72001/mediconnect), ya entregado y conservado sin modificaciones. El frontend Angular 21+ está en [mediconnect-pro-frontend](https://github.com/leopl72001/mediconnect-pro-frontend). Las fases 6 y 7 están validadas en la interfaz: autenticación real y avisos SSE sin refrescar. La fase 8 añade archivos de prueba privados y cola offline.
 
 **Ruta de desarrollo y criterios del proyecto de grado:** [docs/capstone-roadmap.md](docs/capstone-roadmap.md). **Gobernanza de Cursor AI:** [.cursorrules](.cursorrules). El frontend Angular 21+ se desarrolla en el repositorio independiente enlazado arriba.
 
@@ -21,6 +21,7 @@
 - DTOs con records, MapStruct, ProblemDetail, Swagger/OpenAPI, Actuator, métricas y virtual threads.
 - Docker Compose, Postman, pruebas JUnit/Mockito y CI GitHub Actions.
 - **Fase 7:** avisos SSE privados de nuevas citas y cancelaciones, enviados únicamente a paciente y médico asignado después de confirmar la transacción. [Contrato y prueba](docs/FASE7-SSE.md).
+- **Fase 8 (en pruebas):** archivos privados de demostración (WebP/PNG/JPEG/PDF, máximo 5 MB) en MongoDB GridFS. Acceso exclusivo del paciente autenticado mediante JWT; validación de firma de archivo, protección contra lectura cruzada, descarga como adjunto. [Contrato de medios](docs/FASE8-MEDIOS.md).
 
 ## Opción A: ejecutar sin Docker (DEV)
 
@@ -71,6 +72,7 @@ El perfil `docker` utiliza `ddl-auto=update` **solo para demostración local**. 
 6. Médico: `GET /api/v1/appointments/doctor/me`, `POST /api/v1/appointments/{id}/clinical-notes` (Docker), `POST /api/v1/appointments/{id}/prescriptions`.
 7. Paciente: `GET /api/v1/clinical-notes/me` (Docker), `GET /api/v1/prescriptions/me`.
 8. Médico o paciente autenticado: `GET /api/v1/notifications/stream` con JWT en la cabecera `Authorization` para recibir eventos `appointment-changed` por SSE.
+9. Paciente: `GET /api/v1/media/me`, `POST /api/v1/media/me` (multipart `file`) y `GET /api/v1/media/me/{id}` para descargar sus propios archivos de prueba; habilitado solo en `docker/prod`.
 
 Importa `postman/MediConnect.postman_collection.json` y completa las variables de credenciales y IDs. Nunca pegues JWT reales en un repositorio público.
 
@@ -92,7 +94,7 @@ En Docker, las mismas variables se leen del archivo `.env`. No existe registro p
 mvn test
 ```
 
-GitHub Actions ejecuta pruebas de Spring Boot, seguridad y reglas de negocio. En pruebas locales de noviembre de 2026 se verificó el despliegue Docker de PostgreSQL, MongoDB y Redis con salud `UP`, además de autenticación, reservas, seguridad por roles, notas clínicas y recetas. La fase 7 incorpora pruebas adicionales y su resultado de CI se registra en GitHub Actions; la prueba SSE simultánea en dos ventanas aún está pendiente. Estas pruebas son **evidencia funcional académica**, no una certificación para producción.
+GitHub Actions ejecuta pruebas de Spring Boot, seguridad y reglas de negocio. En pruebas locales de noviembre de 2026 se verificó el despliegue Docker de PostgreSQL, MongoDB y Redis con salud `UP`, además de autenticación, reservas, seguridad por roles, notas clínicas y recetas. La fase 7 ya se validó visualmente con dos sesiones: la agenda médica se actualizó sola por SSE. La fase 8 incorpora pruebas unitarias de formatos y privacidad; la prueba funcional de subida y sincronización offline sigue pendiente. Estas pruebas son **evidencia funcional académica**, no una certificación para producción.
 
 ## Entrega universitaria: repositorio y video
 
