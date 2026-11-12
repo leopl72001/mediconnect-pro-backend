@@ -39,7 +39,7 @@ jobs:
           java-version: '25'
           cache: maven
       - name: Ejecutar integración JPA contra PostgreSQL 17 efímero
-        run: mvn -B -Dtest=SpecialtyPostgresIT test
+        run: mvn -B '-Dtest=SpecialtyPostgresIT,FlywayPostgresIT' test
       - name: Adjuntar resultados en fallo
         if: failure()
         uses: actions/upload-artifact@v4
