@@ -1,14 +1,14 @@
 # MediConnect Pro — Backend (Proyecto de Grado)
 
-> **Versión 2 independiente y en construcción.** Partimos de la versión 1 [MediConnect](https://github.com/leopl72001/mediconnect), ya entregada y conservada sin modificaciones. **Estado actual del código: Java 21 / Spring Boot 3.5.7**, aún no migrado a Java 25 / Spring Boot 4. Este repositorio será el backend de la nueva aplicación Full-Stack.
+> **Versión 2 independiente, Java 25 / Spring Boot 4.0.9.** Partimos de [MediConnect v1](https://github.com/leopl72001/mediconnect), ya entregado y conservado sin modificaciones. El frontend Angular 21+ está en [mediconnect-pro-frontend](https://github.com/leopl72001/mediconnect-pro-frontend). La fase 6 de integración funcional está validada; en fase 7 se añade SSE para actualizar las agendas automáticamente.
 
-**Ruta de desarrollo y criterios del proyecto de grado:** [docs/capstone-roadmap.md](docs/capstone-roadmap.md). **Gobernanza de Cursor AI:** [.cursorrules](.cursorrules). El frontend Angular 21+ se creará en un repositorio distinto.
+**Ruta de desarrollo y criterios del proyecto de grado:** [docs/capstone-roadmap.md](docs/capstone-roadmap.md). **Gobernanza de Cursor AI:** [.cursorrules](.cursorrules). El frontend Angular 21+ se desarrolla en el repositorio independiente enlazado arriba.
 
 ---
 
 ## Base heredada de MediConnect v1
 
-**Proyecto universitario nuevo**, independiente del repositorio anterior. Backend REST con Java 21, Spring Boot 3.5.7, Maven, Spring Security, PostgreSQL, MongoDB y Redis.
+**Proyecto universitario independiente**, migrado a Java 25 y Spring Boot 4, con Maven, Spring Security, PostgreSQL, MongoDB y Redis.
 
 ## Características
 
@@ -20,14 +20,15 @@
 - Redis con caché de médicos (TTL 10 minutos) y medicamentos validados (TTL 24 horas).
 - DTOs con records, MapStruct, ProblemDetail, Swagger/OpenAPI, Actuator, métricas y virtual threads.
 - Docker Compose, Postman, pruebas JUnit/Mockito y CI GitHub Actions.
+- **Fase 7:** avisos SSE privados de nuevas citas y cancelaciones, enviados únicamente a paciente y médico asignado después de confirmar la transacción. [Contrato y prueba](docs/FASE7-SSE.md).
 
 ## Opción A: ejecutar sin Docker (DEV)
 
-Requisitos: **JDK 21, Maven 3.9+** y Git.
+Requisitos: **JDK 25, Maven 3.9+** y Git.
 
 ```powershell
-git clone https://github.com/leopl72001/mediconnect.git
-cd mediconnect
+git clone https://github.com/leopl72001/mediconnect-pro-backend.git
+cd mediconnect-pro-backend
 mvn test
 mvn spring-boot:run
 ```
@@ -43,8 +44,8 @@ En `dev`, el servidor usa H2 en memoria y desactiva MongoDB/Redis. Los endpoints
 ## Opción B: ejecutar todo con Docker Desktop (perfil docker)
 
 ```powershell
-git clone https://github.com/leopl72001/mediconnect.git
-cd mediconnect
+git clone https://github.com/leopl72001/mediconnect-pro-backend.git
+cd mediconnect-pro-backend
 Copy-Item .env.example .env
 ```
 
@@ -56,7 +57,7 @@ docker compose ps
 docker compose logs -f app
 ```
 
-La aplicación escucha en http://localhost:8081. PostgreSQL en 5433, MongoDB en 27018 y Redis en 6380, enlazados a localhost para no interferir con el proyecto anterior.
+La aplicación escucha en **http://127.0.0.1:8082**. PostgreSQL usa **5434**, MongoDB **27019** y Redis **6381**, enlazados a localhost para no interferir con MediConnect v1.
 
 El perfil `docker` utiliza `ddl-auto=update` **solo para demostración local**. El perfil `prod` usa `validate` y necesita migraciones SQL versionadas antes de un despliegue real.
 
@@ -69,6 +70,7 @@ El perfil `docker` utiliza `ddl-auto=update` **solo para demostración local**. 
 5. Paciente: `POST /api/v1/appointments`, `GET /api/v1/appointments/me`, `PATCH /api/v1/appointments/{id}/cancel`.
 6. Médico: `GET /api/v1/appointments/doctor/me`, `POST /api/v1/appointments/{id}/clinical-notes` (Docker), `POST /api/v1/appointments/{id}/prescriptions`.
 7. Paciente: `GET /api/v1/clinical-notes/me` (Docker), `GET /api/v1/prescriptions/me`.
+8. Médico o paciente autenticado: `GET /api/v1/notifications/stream` con JWT en la cabecera `Authorization` para recibir eventos `appointment-changed` por SSE.
 
 Importa `postman/MediConnect.postman_collection.json` y completa las variables de credenciales y IDs. Nunca pegues JWT reales en un repositorio público.
 
@@ -90,7 +92,7 @@ En Docker, las mismas variables se leen del archivo `.env`. No existe registro p
 mvn test
 ```
 
-GitHub Actions ejecuta pruebas de Spring Boot, seguridad y reglas de negocio. En la comprobación local del 4 de noviembre de 2026 se ejecutaron **14 pruebas Maven con 0 fallos**, se verificó el despliegue Docker de PostgreSQL, MongoDB y Redis con salud `UP`, y se comprobaron reservas, seguridad por roles, notas clínicas, recetas con una respuesta `VALIDATED` de OpenFDA y caché Redis con TTL positivo. Estas pruebas son **evidencia funcional académica**, no una certificación para producción.
+GitHub Actions ejecuta pruebas de Spring Boot, seguridad y reglas de negocio. En pruebas locales de noviembre de 2026 se verificó el despliegue Docker de PostgreSQL, MongoDB y Redis con salud `UP`, además de autenticación, reservas, seguridad por roles, notas clínicas y recetas. La fase 7 incorpora pruebas adicionales y su resultado de CI se registra en GitHub Actions; la prueba SSE simultánea en dos ventanas aún está pendiente. Estas pruebas son **evidencia funcional académica**, no una certificación para producción.
 
 ## Entrega universitaria: repositorio y video
 

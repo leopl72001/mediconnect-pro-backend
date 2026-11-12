@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.UUID;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.context.ApplicationEventPublisher;
+import com.universidad.mediconnect2.notifications.AppointmentChanged;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.universidad.mediconnect2.admin.*;
@@ -20,11 +22,13 @@ public class AppointmentService {
     private final OfficeRepository offices;
     private final Clock clock;
     private final MeterRegistry metrics;
+    private final ApplicationEventPublisher notifications;
 
     public AppointmentService(AppointmentRepository appointments,UserAccountRepository users,
-            DoctorRepository doctors,OfficeRepository offices,Clock clock,MeterRegistry metrics) {
+            DoctorRepository doctors,OfficeRepository offices,Clock clock,MeterRegistry metrics,
+            ApplicationEventPublisher notifications) {
         this.appointments=appointments; this.users=users; this.doctors=doctors;
-        this.offices=offices; this.clock=clock; this.metrics=metrics;
+        this.offices=offices; this.clock=clock; this.metrics=metrics; this.notifications=notifications;
     }
 
     @Transactional
@@ -42,7 +46,11 @@ public class AppointmentService {
         boolean overlap=appointments.existsByDoctor_IdAndStatusNotAndStartTimeLessThanAndEndTimeGreaterThan(
                 doctor.getId(),AppointmentStatus.CANCELLED,end,start);
         if (overlap) throw new ConflictException("El doctor ya tiene una cita que se solapa con ese horario.");
-        return appointments.save(new Appointment(patient,doctor,office,start,end));
+        Appointment saved = appointments.save(new Appointment(patient,doctor,office,start,end));
+        // Published only after the transaction commits, via @TransactionalEventListener.
+        notifications.publishEvent(new AppointmentChanged(
+                saved.getId(), patient.getEmail(), doctor.getUser().getEmail(), saved.getStatus()));
+        return saved;
     }
 
     @Transactional
@@ -61,6 +69,9 @@ public class AppointmentService {
             throw e;
         }
         appointment.cancel();
+        notifications.publishEvent(new AppointmentChanged(
+                appointment.getId(), appointment.getPatient().getEmail(),
+                appointment.getDoctor().getUser().getEmail(), appointment.getStatus()));
         return appointment;
     }
 
