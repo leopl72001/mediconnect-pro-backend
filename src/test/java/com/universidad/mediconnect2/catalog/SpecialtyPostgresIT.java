@@ -14,7 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Real repository integration against a disposable PostgreSQL 17 instance. */
 @Testcontainers
-@DataJpaTest(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
+@DataJpaTest(properties = {"spring.jpa.hibernate.ddl-auto=create-drop",
+        "spring.datasource.driver-class-name=org.postgresql.Driver"})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class SpecialtyPostgresIT {
     @Container
