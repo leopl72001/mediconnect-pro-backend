@@ -1,6 +1,6 @@
 # MediConnect Pro — Backend (Proyecto de Grado)
 
-> **Versión 2 independiente, Java 25 / Spring Boot 4.0.9.** Partimos de [MediConnect v1](https://github.com/leopl72001/mediconnect), ya entregado y conservado sin modificaciones. El frontend Angular 21+ está en [mediconnect-pro-frontend](https://github.com/leopl72001/mediconnect-pro-frontend). Las fases 6 y 7 están validadas en la interfaz: autenticación real y avisos SSE sin refrescar. La fase 8 añade archivos de prueba privados y cola offline.
+> **Versión 2 independiente, Java 25 / Spring Boot 4.0.9.** Partimos de [MediConnect v1](https://github.com/leopl72001/mediconnect), ya entregado y conservado sin modificaciones. El frontend Angular 21+ está en [mediconnect-pro-frontend](https://github.com/leopl72001/mediconnect-pro-frontend). Las fases 6 y 7 se validaron en la interfaz; la fase 8 se probó localmente (archivos privados y cola offline). Fase 9: nuevas pruebas de seguridad y de negocio integradas en GitHub.
 
 **Ruta de desarrollo y criterios del proyecto de grado:** [docs/capstone-roadmap.md](docs/capstone-roadmap.md). **Gobernanza de Cursor AI:** [.cursorrules](.cursorrules). El frontend Angular 21+ se desarrolla en el repositorio independiente enlazado arriba.
 
@@ -21,7 +21,7 @@
 - DTOs con records, MapStruct, ProblemDetail, Swagger/OpenAPI, Actuator, métricas y virtual threads.
 - Docker Compose, Postman, pruebas JUnit/Mockito y CI GitHub Actions.
 - **Fase 7:** avisos SSE privados de nuevas citas y cancelaciones, enviados únicamente a paciente y médico asignado después de confirmar la transacción. [Contrato y prueba](docs/FASE7-SSE.md).
-- **Fase 8 (en pruebas):** archivos privados de demostración (WebP/PNG/JPEG/PDF, máximo 5 MB) en MongoDB GridFS. Acceso exclusivo del paciente autenticado mediante JWT; validación de firma de archivo, protección contra lectura cruzada, descarga como adjunto. [Contrato de medios](docs/FASE8-MEDIOS.md).
+- **Fase 8 (validada en entorno local con datos ficticios):** archivos privados de demostración (WebP/PNG/JPEG/PDF, máximo 5 MB) en MongoDB GridFS. Acceso exclusivo del paciente autenticado mediante JWT; validación de firma de archivo, protección contra lectura cruzada, descarga como adjunto. [Contrato de medios](docs/FASE8-MEDIOS.md).
 
 ## Opción A: ejecutar sin Docker (DEV)
 
@@ -91,10 +91,10 @@ En Docker, las mismas variables se leen del archivo `.env`. No existe registro p
 ## Proyecto de grado: calidad, cloud y defensa
 
 **Arquitectura:** [diagramas y decisiones](docs/ARQUITECTURA-CAPSTONE.md).
-**Despliegue:** [configurar Render, MongoDB y Redis externos](docs/DEPLOY-CLOUD.md).
+**Despliegue:** [configurar Render, MongoDB y Redis externos](docs/DEPLOY-CLOUD.md). La base Render Free existe, pero no hay servicios web ni MongoDB/Redis públicos configurados.
 **Frontend, pruebas Cypress y defensa:** [mediconnect-pro-frontend](https://github.com/leopl72001/mediconnect-pro-frontend).
 
-- `mvn clean verify` genera `target/site/jacoco/index.html` y `jacoco.xml`; `python3 scripts/report-coverage.py` muestra % real (opcional `--minimum 80`). Última medición en CI: **42.73 % líneas / 34.39 % ramas**. La meta de **80 % todavía no está aprobada**.
+- `mvn clean verify` genera `target/site/jacoco/index.html` y `jacoco.xml`; `python3 scripts/report-coverage.py` muestra % real (opcional `--minimum 80`). Última medición integrada de CI: **51,64 % líneas / 56,69 % ramas** y **44/44 pruebas**, incluida validación de límites. La meta de **80 % todavía no está aprobada**. Detalle en [auditoría de cierre](docs/ESTADO-FINAL-CAPSTONE.md).
 - **Testcontainers:** `mvn -Dtest=SpecialtyPostgresIT,FlywayPostgresIT test` (requiere Docker Desktop); prueba repositorio JPA, esquema Flyway y Hibernate validate en PostgreSQL 17 temporal.
 - **CD:** `.github/workflows/publish-cloud.yml` publica imágenes a GHCR en pushes a main; Render solo se activa al configurar el proyecto y sus secretos, y opcionalmente un deploy hook.
 - **SonarCloud:** los jobs requieren tokens y proyectos configurados. Un workflow saltado no equivale a un dashboard aprobado.
@@ -106,7 +106,7 @@ En Docker, las mismas variables se leen del archivo `.env`. No existe registro p
 mvn test
 ```
 
-GitHub Actions ejecuta pruebas de Spring Boot, seguridad y reglas de negocio. En pruebas locales de noviembre de 2026 se verificó el despliegue Docker de PostgreSQL, MongoDB y Redis con salud `UP`, además de autenticación, reservas, seguridad por roles, notas clínicas y recetas. La fase 7 ya se validó visualmente con dos sesiones: la agenda médica se actualizó sola por SSE. La fase 8 incorpora pruebas unitarias de formatos y privacidad; la prueba funcional de subida y sincronización offline sigue pendiente. Estas pruebas son **evidencia funcional académica**, no una certificación para producción.
+GitHub Actions ejecuta pruebas de Spring Boot, seguridad y reglas de negocio. En pruebas locales de noviembre de 2026 se verificó el despliegue Docker de PostgreSQL, MongoDB y Redis con salud `UP`, además de autenticación, reservas, seguridad por roles, notas clínicas y recetas. La fase 7 ya se validó visualmente con dos sesiones: la agenda médica se actualizó sola por SSE. La fase 8 incluye pruebas de formatos y privacidad; la subida, descarga, conversión WebP y sincronización offline se comprobaron manualmente con archivos ficticios en Docker. Cypress automatiza además la separación de archivos entre cuentas. Estas pruebas son **evidencia funcional académica**, no una certificación para producción.
 
 ## Entrega universitaria: repositorio y video
 
