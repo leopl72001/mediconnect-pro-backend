@@ -16,7 +16,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
 public class AppointmentEvents {
-    private static final long TIMEOUT_MILLIS = 30 * 60 * 1000L;
+    // Short-lived SSE connections force regular JWT revalidation on reconnect.
+    private static final long TIMEOUT_MILLIS = 5 * 60 * 1000L;
     private final Map<String, CopyOnWriteArrayList<SseEmitter>> subscribers = new ConcurrentHashMap<>();
 
     public SseEmitter subscribe(String email) {
