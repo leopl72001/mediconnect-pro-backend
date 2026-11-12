@@ -7,6 +7,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.mock.web.MockMultipartFile;
+import com.mongodb.client.gridfs.model.GridFSFile;
+import org.bson.Document;
+import org.bson.BsonObjectId;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.query.Query;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -39,6 +44,18 @@ class PrivateMediaServiceTest {
     @Test void preventsExecutableExtensionsInDownloads() {
         assertEquals("prueba.webp", PrivateMediaService.safeFilename("prueba.html", "image/webp"));
         assertEquals("consulta.pdf", PrivateMediaService.safeFilename("consulta.js", "application/pdf"));
+    }
+
+    @Test void hidesAnotherUsersFileAsNotFound() {
+        ObjectId objectId = new ObjectId();
+        GridFSFile stored = mock(GridFSFile.class);
+        when(stored.getMetadata()).thenReturn(new Document("owner", "owner@example.com"));
+        when(grid.findOne(any(Query.class))).thenReturn(stored);
+
+        assertThrows(RuntimeException.class, () -> new PrivateMediaService(grid)
+                .download("other@example.com", objectId.toHexString()));
+
+        verify(grid, never()).getResource(any());
     }
 
     @Test void doesNotLookupInvalidObjectId() {
