@@ -23,4 +23,22 @@ class AppointmentPolicyTest {
     @Test void allowsCancellationAfter24Hours() {
         assertDoesNotThrow(() -> AppointmentPolicy.requireCancellable(now.plusSeconds(86401),now));
     }
+
+    @Test void rejectsMissingStartAndEnd() {
+        assertThrows(IllegalArgumentException.class,
+                () -> AppointmentPolicy.validateWindow(null, now.plusSeconds(3600), now));
+        assertThrows(IllegalArgumentException.class,
+                () -> AppointmentPolicy.validateWindow(now.plusSeconds(3600), null, now));
+    }
+
+    @Test void rejectsStartExactlyAtCurrentTime() {
+        assertThrows(IllegalArgumentException.class,
+                () -> AppointmentPolicy.validateWindow(now, now.plusSeconds(1800), now));
+    }
+
+    @Test void rejectsCancelWithinTheLastTwentyFourHours() {
+        assertThrows(LateCancellationException.class,
+                () -> AppointmentPolicy.requireCancellable(now.plusSeconds(86399), now));
+    }
+
 }
