@@ -15,7 +15,62 @@ jobs:
           cache: maven
       - name: Compilar, probar y empaquetar
         run: mvn -B verify
+      - name: Publicar reportes JaCoCo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-jacoco
+          path: target/site/jacoco/
+          if-no-files-found: warn
       - name: Validar Docker Compose
         run: |
           cp .env.example .env
           docker compose config --quiet
+
+  testcontainers:
+    name: PostgreSQL real con Testcontainers
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Ejecutar integración JPA contra PostgreSQL 17 efímero
+        run: mvn -B -Dtest=SpecialtyPostgresIT test
+      - name: Adjuntar resultados en fallo
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-testcontainers
+          path: target/surefire-reports/
+          if-no-files-found: ignore
+
+  sonarcloud:
+    name: SonarCloud (cuando se conecte el proyecto)
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.SONAR_TOKEN != '' && env.SONAR_PROJECT_KEY != '' && env.SONAR_ORGANIZATION != ''
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        if: env.SONAR_TOKEN != '' && env.SONAR_PROJECT_KEY != '' && env.SONAR_ORGANIZATION != ''
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Análisis Sonar con cobertura real
+        if: env.SONAR_TOKEN != '' && env.SONAR_PROJECT_KEY != '' && env.SONAR_ORGANIZATION != ''
+        run: >
+          mvn -B verify sonar:sonar
+          -Dsonar.projectKey="$SONAR_PROJECT_KEY"
+          -Dsonar.organization="$SONAR_ORGANIZATION"
+          -Dsonar.host.url=https://sonarcloud.io
