@@ -55,7 +55,7 @@ class PrivateMediaServiceTest {
         assertThrows(RuntimeException.class, () -> new PrivateMediaService(grid)
                 .download("other@example.com", objectId.toHexString()));
 
-        verify(grid, never()).getResource(any());
+        verify(grid, never()).getResource(any(GridFSFile.class));
     }
 
     @Test void doesNotLookupInvalidObjectId() {
