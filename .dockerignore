@@ -6,3 +6,9 @@ target
 *.log
 .idea
 .vscode
+
+.env.*
+!.env.example
+docs
+postman
+README.md

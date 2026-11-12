@@ -60,7 +60,7 @@ docker compose logs -f app
 
 La aplicación escucha en **http://127.0.0.1:8082**. PostgreSQL usa **5434**, MongoDB **27019** y Redis **6381**, enlazados a localhost para no interferir con MediConnect v1.
 
-El perfil `docker` utiliza `ddl-auto=update` **solo para demostración local**. El perfil `prod` usa `validate` y necesita migraciones SQL versionadas antes de un despliegue real.
+El perfil `docker` utiliza `ddl-auto=update` **solo para demostración local**. El perfil `prod` usa Flyway V1 para crear una base nueva y `ddl-auto=validate`. **No conectar este perfil a una base ya poblada sin una migración/baseline evaluados.**
 
 ## Flujo rápido
 
@@ -87,6 +87,18 @@ mvn spring-boot:run
 ```
 
 En Docker, las mismas variables se leen del archivo `.env`. No existe registro público de administradores.
+
+## Proyecto de grado: calidad, cloud y defensa
+
+**Arquitectura:** [diagramas y decisiones](docs/ARQUITECTURA-CAPSTONE.md).
+**Despliegue:** [configurar Render, MongoDB y Redis externos](docs/DEPLOY-CLOUD.md).
+**Frontend, pruebas Cypress y defensa:** [mediconnect-pro-frontend](https://github.com/leopl72001/mediconnect-pro-frontend).
+
+- `mvn clean verify` genera `target/site/jacoco/index.html` y `jacoco.xml`; `python3 scripts/report-coverage.py` muestra % real (opcional `--minimum 80`). Última medición en CI: **42.73 % líneas / 34.39 % ramas**. La meta de **80 % todavía no está aprobada**.
+- **Testcontainers:** `mvn -Dtest=SpecialtyPostgresIT,FlywayPostgresIT test` (requiere Docker Desktop); prueba repositorio JPA, esquema Flyway y Hibernate validate en PostgreSQL 17 temporal.
+- **CD:** `.github/workflows/publish-cloud.yml` publica imágenes a GHCR en pushes a main; Render solo se activa al configurar el proyecto y sus secretos, y opcionalmente un deploy hook.
+- **SonarCloud:** los jobs requieren tokens y proyectos configurados. Un workflow saltado no equivale a un dashboard aprobado.
+- **Meta pendiente:** cobertura ≥80 %, tres Cypress verdes, URL pública funcional y dashboard SonarCloud verificado.
 
 ## Calidad y alcance
 

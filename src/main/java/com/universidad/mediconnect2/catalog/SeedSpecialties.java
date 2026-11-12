@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({"dev","docker"})
+@Profile({"dev","docker","prod"})
 public class SeedSpecialties implements ApplicationRunner {
     private final SpecialtyRepository specialties;
     public SeedSpecialties(SpecialtyRepository specialties) { this.specialties=specialties; }
