@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.springframework.context.ApplicationEventPublisher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -24,6 +25,7 @@ class AppointmentServiceTest {
     @Mock OfficeRepository offices;
     @Mock Clock clock;
     @Mock MeterRegistry metrics;
+    @Mock ApplicationEventPublisher notifications;
 
     @Test void rejectsOverlapBeforeSaving() {
         UUID doctorId=UUID.randomUUID();
@@ -42,7 +44,7 @@ class AppointmentServiceTest {
         when(office.isActive()).thenReturn(true);
         when(appointments.existsByDoctor_IdAndStatusNotAndStartTimeLessThanAndEndTimeGreaterThan(
                 doctorId,AppointmentStatus.CANCELLED,end,start)).thenReturn(true);
-        AppointmentService service=new AppointmentService(appointments,users,doctors,offices,clock,metrics);
+        AppointmentService service=new AppointmentService(appointments,users,doctors,offices,clock,metrics,notifications);
         assertThrows(ConflictException.class,
                 () -> service.create("patient@example.com",doctorId,officeId,start,end));
         verify(appointments,never()).save(any());
