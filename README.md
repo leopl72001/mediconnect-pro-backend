@@ -94,7 +94,7 @@ En Docker, las mismas variables se leen del archivo `.env`. No existe registro p
 **Despliegue:** [configurar Render, MongoDB y Redis externos](docs/DEPLOY-CLOUD.md). La base Render Free existe, pero no hay servicios web ni MongoDB/Redis públicos configurados.
 **Frontend, pruebas Cypress y defensa:** [mediconnect-pro-frontend](https://github.com/leopl72001/mediconnect-pro-frontend).
 
-- `mvn clean verify` genera `target/site/jacoco/index.html` y `jacoco.xml`; `python3 scripts/report-coverage.py` muestra % real (opcional `--minimum 80`). Última medición integrada de CI: **51,64 % líneas / 56,69 % ramas** y **44/44 pruebas**, incluida validación de límites. La meta de **80 % todavía no está aprobada**. Detalle en [auditoría de cierre](docs/ESTADO-FINAL-CAPSTONE.md).
+- `mvn clean verify` genera `target/site/jacoco/index.html` y `jacoco.xml`; `python3 scripts/report-coverage.py` muestra % real (opcional `--minimum 80`). Última medición integrada de CI: **82,36 % líneas / 82,17 % ramas** y **95/95 pruebas**, incluida validación de límites. La meta de **80 % del backend está aprobada y se exige en CI**; el frontend sigue pendiente del 80 %. Detalle en [auditoría de cierre](docs/ESTADO-FINAL-CAPSTONE.md).
 - **Testcontainers:** `mvn -Dtest=SpecialtyPostgresIT,FlywayPostgresIT test` (requiere Docker Desktop); prueba repositorio JPA, esquema Flyway y Hibernate validate en PostgreSQL 17 temporal.
 - **CD:** `.github/workflows/publish-cloud.yml` publica imágenes a GHCR en pushes a main; Render solo se activa al configurar el proyecto y sus secretos, y opcionalmente un deploy hook.
 - **SonarCloud:** los jobs requieren tokens y proyectos configurados. Un workflow saltado no equivale a un dashboard aprobado.
