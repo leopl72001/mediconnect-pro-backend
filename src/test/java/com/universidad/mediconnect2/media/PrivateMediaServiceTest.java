@@ -63,4 +63,73 @@ class PrivateMediaServiceTest {
                 .download("demo@example.com", "invalid-id"));
         verifyNoInteractions(grid);
     }
+
+    @Test void identifiesPngJpegAndPdfUsingMagicBytes() {
+        assertEquals("image/png", PrivateMediaService.checkedType(
+                new byte[] {(byte) 137,80,78,71,13,10,26,10}));
+        assertEquals("image/jpeg", PrivateMediaService.checkedType(
+                new byte[] {(byte) 0xff,(byte) 0xd8,(byte) 0xff,0}));
+        assertEquals("application/pdf", PrivateMediaService.checkedType(
+                new byte[] {'%','P','D','F','-', '1'}));
+    }
+
+    @Test void rejectsTruncatedAndUnknownFileSignatures() {
+        for (byte[] candidate : new byte[][] {
+                {}, {'R','I','F','F'}, {'%','P','D','F'}, {(byte) 137,80,78},
+                {'G','I','F','8','9','a'} }) {
+            assertThrows(IllegalArgumentException.class,
+                    () -> PrivateMediaService.checkedType(candidate));
+        }
+    }
+
+    @Test void normalizesDangerousAndMissingFilenames() {
+        assertEquals("documento.pdf", PrivateMediaService.safeFilename(null, "application/pdf"));
+        assertEquals("documento.png", PrivateMediaService.safeFilename("", "image/png"));
+        assertEquals("mi_foto.jpg", PrivateMediaService.safeFilename("mi foto.exe", "image/jpeg"));
+        assertEquals("foto.webp", PrivateMediaService.safeFilename("foto.svg", "image/webp"));
+        assertEquals("documento.jpg", PrivateMediaService.safeFilename(".hidden", "image/jpeg"));
+        assertThrows(IllegalArgumentException.class,
+                () -> PrivateMediaService.safeFilename("file", "text/html"));
+        assertEquals(75, PrivateMediaService.safeFilename("a".repeat(90) + ".webp", "image/webp").length());
+    }
+
+    @Test void refusesMissingOrEmptyUploadBeforeCallingMongo() {
+        PrivateMediaService service = new PrivateMediaService(grid);
+        assertThrows(IllegalArgumentException.class, () -> service.upload("demo@example.com", null));
+        assertThrows(IllegalArgumentException.class, () -> service.upload("demo@example.com",
+                new MockMultipartFile("file", "empty.png", "image/png", new byte[0])));
+        verifyNoInteractions(grid);
+    }
+
+    @Test void storesValidatedImageWithCanonicalOwnerAndSafeName() throws IOException {
+        byte[] png = {(byte) 137,80,78,71,13,10,26,10,0,0,0};
+        ObjectId id = new ObjectId();
+        when(grid.store(any(java.io.InputStream.class), eq("foto.png"), eq("image/png"),
+                any(Document.class))).thenReturn(id);
+        var stored = new PrivateMediaService(grid).upload("  Paciente@Example.COM  ",
+                new MockMultipartFile("file", "foto.html", "text/html", png));
+
+        assertEquals(id.toHexString(), stored.id());
+        assertEquals("image/png", stored.contentType());
+        assertEquals("foto.png", stored.filename());
+        assertEquals(png.length, stored.size());
+        assertNotNull(stored.uploadedAt());
+
+        org.mockito.ArgumentCaptor<Document> metadata =
+                org.mockito.ArgumentCaptor.forClass(Document.class);
+        verify(grid).store(any(java.io.InputStream.class), eq("foto.png"), eq("image/png"),
+                metadata.capture());
+        assertEquals("paciente@example.com", metadata.getValue().getString("owner"));
+        assertEquals("image/png", metadata.getValue().getString("kind"));
+        assertEquals("foto.png", metadata.getValue().getString("filename"));
+    }
+
+    @Test void refusesMissingFileAndMissingMetadataWithoutReturningBytes() {
+        ObjectId id = new ObjectId();
+        when(grid.findOne(any(Query.class))).thenReturn(null);
+        assertThrows(com.universidad.mediconnect2.shared.NotFoundException.class,
+                () -> new PrivateMediaService(grid).download("demo@example.com", id.toHexString()));
+        verify(grid, never()).getResource(any(GridFSFile.class));
+    }
+
 }
