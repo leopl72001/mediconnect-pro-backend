@@ -9,8 +9,8 @@
 | Java 25, Spring Boot 4, API REST JWT HS512 y roles | Implementado | `mvn verify`, GitHub Actions |
 | Angular 21, Signals, Tailwind y componentes responsive | Implementado | CI Angular, prueba funcional local |
 | PostgreSQL, Hibernate/Flyway, cita y cancelación con restricciones | Implementado local | Testcontainers PostgreSQL y Docker Compose |
-| MongoDB, notas clínicas y archivos privados GridFS | Implementado local | Cypress (notas, separación de pacientes), pruebas manuales |
-| Redis para caché | Implementado local | Docker Compose; no instancia cloud creada |
+| MongoDB, notas clínicas y archivos privados GridFS | Implementado local; Atlas M0 creado | Atlas `Project 0` / `Cluster0` Free, sin usuario de app ni API conectada |
+| Redis para caché | Implementado local; instancia cloud Free preparada | Render `mediconnect-pro-cache` en Oregon, sin conectar aún a la API |
 | SSE para cambios de agenda | Implementado local | Pruebas locales y Cypress |
 | WebP, almacenamiento privado y cola offline IndexedDB | Implementado y probado en local | Imagen ficticia pendiente y posterior sincronización a MongoDB |
 | Pruebas backend | **95/95** | GitHub Actions, JUnit y Testcontainers PostgreSQL |
@@ -54,7 +54,7 @@ Visitar `http://localhost:4200`. Si Node nativo o el proxy local fallan en Windo
 ## Bloqueos para cierre total
 
 1. **Cobertura académica:** cumplida en ambas aplicaciones. JaCoCo exige al menos 80 % de líneas y ramas; Vitest exige al menos 80 % de líneas, ramas, funciones e instrucciones. Los reportes de CI deben seguir adjuntos como evidencia de sustentación.
-2. **Render:** hay una base de PostgreSQL 18 gratuita ya existente (`biblioteca-db`, nombre de base `biblioteca_db_w5no`, región Oregon, caducidad indicada **12/12/2026**), pero no hay aplicaciones web ni Key Value/Redis. Se requiere MongoDB Atlas u otro MongoDB accesible, Redis y secretos configurados en Render. `render.yaml` utiliza un plan Free y **no crea otra base**. El despliegue no se puede declarar completado hasta que existan URLs públicas comprobadas.
+2. **Render:** hay una base de PostgreSQL 18 gratuita ya existente (`biblioteca-db`, nombre de base `biblioteca_db_w5no`, región Oregon, caducidad indicada **12/12/2026**), pero no hay aplicaciones web. MongoDB Atlas Free `Cluster0` y Redis Free `mediconnect-pro-cache` ya existen; faltan usuario de Mongo con permisos mínimos, red/URL, secretos y servicio web. El SQL externo de Render no permitió inspeccionar tablas por lista de IP vacía: **verificar que la base está vacía antes de conectar Flyway**. `render.yaml` utiliza un plan Free y **no crea otra base**. El despliegue no se puede declarar completado hasta que existan URLs públicas comprobadas.
 3. **SonarCloud:** requiere conectar dos proyectos y configurar los secretos del repositorio; no exponer valores en documentación ni capturas.
 4. **Defensa:** grabar video de funcionamiento con usuarios ficticios y guardar capturas de CI, cobertura, autorización y pruebas offline.
 
