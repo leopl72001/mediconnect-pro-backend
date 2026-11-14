@@ -1,5 +1,88 @@
 # MediConnect Pro — Backend (Proyecto de Grado)
 
+## Entrega del proyecto de grado — MediConnect Pro
+
+**MediConnect Pro** es una aplicación académica full-stack para la gestión de citas y registros clínicos de demostración. Implementa flujos diferenciados de **paciente, médico y administrador**, con autenticación JWT y persistencia en PostgreSQL y MongoDB. **No es un sistema clínico certificado ni debe utilizarse con datos de pacientes reales.**
+
+### Enlaces de la solución
+
+| Recurso | Enlace |
+| --- | --- |
+| Aplicación web desplegada | [Abrir MediConnect Pro](https://mediconnect-pro-frontend.onrender.com) |
+| API Spring Boot | [Backend en Render](https://mediconnect-pro-backend.onrender.com) |
+| Estado de la API | [Actuator Health](https://mediconnect-pro-backend.onrender.com/actuator/health) |
+| Código fuente backend | [GitHub — Java / Spring Boot](https://github.com/leopl72001/mediconnect-pro-backend) |
+| Código fuente frontend | [GitHub — Angular](https://github.com/leopl72001/mediconnect-pro-frontend) |
+
+> **Video de sustentación (5–8 minutos):** pendiente de subir. Cuando esté publicado, añadir aquí su URL pública de YouTube o Google Drive. El formulario de entrega también requiere pegar esa URL en su campo correspondiente.
+
+### ¿Qué problema resuelve?
+
+Centraliza en una sola plataforma las funciones principales de una consulta médica de demostración: catálogo de especialistas, reserva y cancelación de citas, agenda del médico, consulta de notas clínicas y prescripciones, perfil del paciente y archivos privados de prueba. Ofrece una interfaz en español con permisos por rol.
+
+### Tecnologías y arquitectura
+
+- **Frontend:** Angular 21, TypeScript, Signals, Tailwind CSS 4, Nginx.
+- **Backend:** Java 25, Spring Boot 4, Spring Security, JWT, Maven.
+- **Datos relacionales:** PostgreSQL, con migraciones Flyway (usuarios, médicos, consultorios, especialidades, citas y prescripciones).
+- **Datos documentales y archivos:** MongoDB Atlas (notas clínicas y GridFS).
+- **Caché:** Redis; **notificaciones de agenda:** SSE.
+- **Despliegue:** dos servicios Docker independientes en Render, con Nginx como proxy inverso hacia la API Spring Boot.
+- **Calidad:** JUnit, JaCoCo, Vitest, Cypress y GitHub Actions.
+
+### Demostración funcional realizada (noviembre de 2026)
+
+Con cuentas y datos **ficticios** se comprobaron manualmente estos recorridos en la aplicación publicada:
+
+1. Registro e inicio de sesión de paciente; autenticación JWT y navegación por rol.
+2. Acceso de administrador y creación de médico y consultorio de prueba.
+3. Actualización del perfil del paciente con confirmación de guardado en PostgreSQL.
+4. Creación y consulta de cita, cancelación y actualización del estado; agenda del médico.
+5. Creación de una nota clínica por el médico y consulta de esa nota en la cuenta del paciente.
+6. Creación de una prescripción por el médico y consulta por el paciente; el resultado de OpenFDA fue `MANUAL_VALIDATION_REQUIRED`, **no una validación automática aprobada**.
+7. Subida y visualización de archivo privado de prueba en MongoDB GridFS.
+8. Indicador `SSE en vivo` durante las pruebas de sesiones autenticadas.
+
+Estas son **pruebas funcionales de demostración**; no constituyen auditoría de seguridad, certificación médica ni garantía de disponibilidad.
+
+### Pruebas automatizadas y cobertura reportada
+
+| Suite | Resultado reportado |
+| --- | --- |
+| Backend JUnit | 95/95 pruebas; JaCoCo 82,36 % líneas y 82,17 % ramas |
+| Frontend Vitest | 235/235 pruebas; 95,78 % líneas, 87,86 % ramas, 81,20 % funciones y 92,13 % instrucciones |
+| Cypress | Recorridos de autenticación, reservas y privacidad entre cuentas documentados |
+
+Los porcentajes proceden de las últimas ejecuciones documentadas en los repositorios, **no de una nueva ejecución realizada para esta actualización del README**. Las reglas de cobertura ≥80 % están configuradas en CI. **No se afirma contar con una validación real de SonarCloud**.
+
+### Cómo evaluar el sistema
+
+1. Acceder a [la aplicación web](https://mediconnect-pro-frontend.onrender.com).
+2. Crear un paciente **ficticio** mediante «Registrarse» o iniciar sesión con una cuenta de prueba existente.
+3. Explorar Especialistas, Mis citas, Mi perfil, Historia clínica, Mis recetas y Mis archivos.
+4. Para probar administración y agenda médica se necesitan cuentas de esos roles creadas de manera autorizada; **no se publican contraseñas ni tokens**.
+5. Para reproducir las pruebas automatizadas o ejecutar el sistema localmente, consultar las instrucciones técnicas más abajo en este README y el repositorio complementario.
+
+### Limitaciones y seguridad
+
+- Render Free suspende instancias por inactividad: el primer acceso puede tardar varios minutos; un despliegue `Live` no implica disponibilidad continua.
+- PostgreSQL Free del entorno de demostración tiene fecha de vencimiento anunciada para **12 de diciembre de 2026**: antes de esa fecha se debe respaldar o migrar la información.
+- Algunas comprobaciones de OpenFDA requieren revisión manual.
+- Las estadísticas avanzadas y el modo demostración pueden usar datos ilustrativos; distinguirlos de los flujos con JWT real.
+- La cola offline IndexedDB no está cifrada: utilizar exclusivamente documentos inventados y no subir datos de salud reales.
+- El entorno es **académico**; requiere controles adicionales antes de cualquier uso productivo.
+
+### Entrega y video (5–8 minutos)
+
+Para el formulario universitario:
+
+1. **Repositorio GitHub público:** colocar la URL de este repositorio como principal; el otro repositorio está enlazado en la tabla anterior.
+2. **Video público:** grabar la pantalla mostrando el problema, la arquitectura, los roles, el registro, la cita y su cancelación, la historia clínica, la receta, el archivo de prueba, los repositorios y el despliegue. Publicarlo en YouTube o Drive con permisos de acceso adecuados y pegar la URL en el campo del formulario.
+3. **Verificar antes de enviar:** abrir ambos enlaces en una ventana privada y comprobar que el video sea accesible sin solicitar permisos.
+
+---
+
+
 > **Versión 2 independiente, Java 25 / Spring Boot 4.0.9.** Partimos de [MediConnect v1](https://github.com/leopl72001/mediconnect), ya entregado y conservado sin modificaciones. El frontend Angular 21+ está en [mediconnect-pro-frontend](https://github.com/leopl72001/mediconnect-pro-frontend). Las fases 6 y 7 se validaron en la interfaz; la fase 8 se probó localmente (archivos privados y cola offline). Fase 9: nuevas pruebas de seguridad y de negocio integradas en GitHub.
 
 **Ruta de desarrollo y criterios del proyecto de grado:** [docs/capstone-roadmap.md](docs/capstone-roadmap.md). **Gobernanza de Cursor AI:** [.cursorrules](.cursorrules). El frontend Angular 21+ se desarrolla en el repositorio independiente enlazado arriba.
@@ -91,14 +174,14 @@ En Docker, las mismas variables se leen del archivo `.env`. No existe registro p
 ## Proyecto de grado: calidad, cloud y defensa
 
 **Arquitectura:** [diagramas y decisiones](docs/ARQUITECTURA-CAPSTONE.md).
-**Despliegue:** [configurar Render, MongoDB y Redis externos](docs/DEPLOY-CLOUD.md). La base Render Free existe, pero no hay servicios web ni MongoDB/Redis públicos configurados.
+**Despliegue:** [configurar Render, MongoDB y Redis externos](docs/DEPLOY-CLOUD.md). La solución académica ya tiene frontend y backend desplegados públicamente en Render; MongoDB Atlas y Redis se utilizan como servicios de datos. El alojamiento gratuito puede suspenderse por inactividad.
 **Frontend, pruebas Cypress y defensa:** [mediconnect-pro-frontend](https://github.com/leopl72001/mediconnect-pro-frontend).
 
-- `mvn clean verify` genera `target/site/jacoco/index.html` y `jacoco.xml`; `python3 scripts/report-coverage.py` muestra % real (opcional `--minimum 80`). Última medición integrada de CI: **82,36 % líneas / 82,17 % ramas** y **95/95 pruebas**, incluida validación de límites. La meta de **80 % del backend está aprobada y se exige en CI**; el frontend sigue pendiente del 80 %. Detalle en [auditoría de cierre](docs/ESTADO-FINAL-CAPSTONE.md).
+- `mvn clean verify` genera `target/site/jacoco/index.html` y `jacoco.xml`; `python3 scripts/report-coverage.py` muestra % real (opcional `--minimum 80`). Última medición integrada de CI: **82,36 % líneas / 82,17 % ramas** y **95/95 pruebas**, incluida validación de límites. La meta de **80 % del backend está aprobada y se exige en CI**; el frontend también tiene reportada cobertura ≥80 % en sus cuatro métricas. Detalle en [auditoría de cierre](docs/ESTADO-FINAL-CAPSTONE.md).
 - **Testcontainers:** `mvn -Dtest=SpecialtyPostgresIT,FlywayPostgresIT test` (requiere Docker Desktop); prueba repositorio JPA, esquema Flyway y Hibernate validate en PostgreSQL 17 temporal.
 - **CD:** `.github/workflows/publish-cloud.yml` publica imágenes a GHCR en pushes a main; Render solo se activa al configurar el proyecto y sus secretos, y opcionalmente un deploy hook.
 - **SonarCloud:** los jobs requieren tokens y proyectos configurados. Un workflow saltado no equivale a un dashboard aprobado.
-- **Meta pendiente:** cobertura ≥80 %, tres Cypress verdes, URL pública funcional y dashboard SonarCloud verificado.
+- **Validación pendiente:** dashboard SonarCloud real y verificación continua de disponibilidad cloud; las coberturas y la URL pública están documentadas en la sección de entrega.
 
 ## Calidad y alcance
 
